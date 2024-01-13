@@ -29,10 +29,15 @@ const GetDetails = () => {
     setClick(true);
   };
 
+  const handleClose = () => {
+    setClick(false);
+
+  };
+
   return (
     <>
       <div className='mx-20 h-[100vh] flex items-center justify-center'>
-        <div className='h-[20rem]  bg-gray-200 rounded-3xl flex justify-center items-center'>
+        <div className='h-[20rem] bg-gray-200 rounded-3xl flex justify-center items-center'>
           <form method='post' className='flex flex-col *:m-4' action='/GetDetails'>
             <div className='*:m-2'>
               <label htmlFor="AreaName">Enter Area Name</label>
@@ -48,11 +53,11 @@ const GetDetails = () => {
       </div>
 
       {fdata.length < details.length && click &&
-        <>
-          <div className='mx-auto  w-[40rem] '>
-            <button onClick={() => setClick(false)}>Close</button>
+        <div className='fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-30'>
+          <div className='mx-auto w-[40rem] bg-white p-4 rounded-lg'>
+            <button onClick={handleClose} className=' text-gray-500'>Close</button>
             {fdata.map((x) => (
-              <div className='flex ' key={x.id}>
+              <div className='flex' key={x.id}>
                 <div className='flex w-1/2'>
                   <h4>{x.plantname}</h4>
                 </div>
@@ -62,7 +67,7 @@ const GetDetails = () => {
               </div>
             ))}
           </div>
-        </>
+        </div>
       }
     </>
   );
