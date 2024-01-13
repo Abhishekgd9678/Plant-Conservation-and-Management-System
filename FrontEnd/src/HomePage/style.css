@@ -1,0 +1,23 @@
+p{
+    font-size: 1.4rem;
+}
+.card>*{
+    background-color: #86A789;
+}
+.xyz{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.xyz>*{
+    height: 200px;
+    width: 200px;
+    background-color: #86A789;
+    border-radius: 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0 3rem 0;
+
+
+}
