@@ -18,9 +18,9 @@ const Contribute = () => {
 
     try {
       const response = await axios.post("http://localhost:3000/details", {
-        plantname,
-        age,
-        location,
+        plantname:plantname,
+        age:age,
+        location:location,
       });
 
       console.log(response.data);
@@ -57,7 +57,7 @@ const Contribute = () => {
             onChange={(e) => setplantname(e.target.value)}
             value={plantname}
           />
-
+      
           <label htmlFor="age">Age:</label>
           <input
             type="number"
@@ -109,4 +109,4 @@ const Contribute = () => {
   );
 };
 
-export default Contribute;
+export default Contribute; 
