@@ -35,7 +35,7 @@ app.get('/details', (req, res) => {
 });
 
 app.post('/filter',(req,res)=>{
-  const q = `SELECT * FROM plantdata where location="${req.body.area}"`
+  const q = `SELECT * FROM plantdata t1 JOIN userinfo t3 ON t1.userID = t3.userID JOIN taxon t2 ON t1.Taxon_id = t2.Taxon_id where location="${req.body.area}"`
   db.query(q,(err, data)=>{
     res.json(data);
   })
