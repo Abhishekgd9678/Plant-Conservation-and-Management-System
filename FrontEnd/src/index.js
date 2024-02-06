@@ -6,13 +6,19 @@ import Header from "./HomePage/Header";
 import Body from "./HomePage/Body";
 import GetDetails from "./GetDetails/GetDetails";
 import Contribute from "./Conribute/Contribute";
-import Login from "./account/login";
+import Login from "./Login";
+
+import { Provider } from "react-redux";
+import store from "./store/store";
+import Profile from "./account/Profile";
 
 const App=()=>{
     return (
         <>
+        <Provider store={store} >
         <Header/>
         <Outlet/>
+        </Provider >
         </>
     )
 }
@@ -34,13 +40,17 @@ const Approuter=createBrowserRouter([
             {
                 path:"/Contribute",
                 element:<Contribute/>
+            },
+            {
+                path:'/log',
+                element:<Login />,
+            },
+            {
+                path:'/account',
+                element:<Profile />
             }
         ]
     },
-    {
-        path:'/log',
-        element:<Login />,
-    }
 ]);
 
 
