@@ -6,19 +6,15 @@ import Header from "./HomePage/Header";
 import Body from "./HomePage/Body";
 import GetDetails from "./GetDetails/GetDetails";
 import Contribute from "./Conribute/Contribute";
+import Login from "./account/login";
 
 const App=()=>{
     return (
         <>
         <Header/>
         <Outlet/>
-  
         </>
-       
-
     )
-
-
 }
 
 
@@ -40,6 +36,10 @@ const Approuter=createBrowserRouter([
                 element:<Contribute/>
             }
         ]
+    },
+    {
+        path:'/log',
+        element:<Login />,
     }
 ]);
 
