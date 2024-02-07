@@ -1,8 +1,14 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, useNavigate } from 'react-router-dom'
+import { removeuser } from '../store/userdata';
 
 
 const Header = () => {
+  const userpresent = useSelector(store=>store.user);
+  const dispatch = useDispatch(removeuser);
+  const navigate = useNavigate();
+
   return (
     <>
     <div className='Header flex justify-between items-center content-center p-2 m-4 mx-8 flex-wrap'>
@@ -17,6 +23,12 @@ const Header = () => {
                 <Link to='/account'><li>Account</li></Link>
                 <Link to="/Contribute"><li>Contribute</li></Link>
                 <Link to='/GetDetails'><li>Get Details</li></Link>
+                {userpresent && <li
+                  onClick={()=>{
+                    dispatch(removeuser());
+                    navigate('/');
+                  }}
+                >Log out</li>}
             </ul>
 
         </div>

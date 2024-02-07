@@ -21,7 +21,6 @@ const Login = () => {
                 password:pass
             });
             if(res.data){
-                console.log(res.data);
                 dispatch(addUser(res.data[0]))
                 navigate('/account');
             }
@@ -35,7 +34,14 @@ const Login = () => {
                 mail:mail,
                 password:pass
             });
-            alert(res.data.error);
+            if(res.data){
+                // dispatch(addUser(res.data[0]))
+                dispatch(addUser({username:username,email:mail,password:pass,userid:res.data.insertId}))
+                navigate('/account');
+            }
+            else{
+                alert(res.data);
+            }
         }
     }
 
