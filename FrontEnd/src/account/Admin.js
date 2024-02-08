@@ -1,94 +1,83 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import profile from "../../images/profile.png"
-
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom'
-
 import { useTable, useSortBy, usePagination } from "react-table";
-import EditModal from '../edit/EditModal';
-
-const Profile = () => {
-    const navigate = useNavigate();
-    const userpresent = useSelector(store=>store.user);
-    const admin = useSelector(store=>store.admin);
-    const [show, setShow] = useState(false);
-
-    const [updatedata,setUpdateData] = useState();
-
-    const [fdata,setFdata] = useState([]);
-
-    useEffect(()=>{
-      if(!userpresent && !admin){
-        navigate('/log');
-        return ;
-      }
-      else if(admin){
-        navigate('/adminprofile');
-        return ;
-      }
-      getData();
-    },[show])
-
-    const getData =async ()=>{
-        const res= await axios.post("http://localhost:3000/userplants",{id:userpresent.userid});
-        setFdata(res.data);
-        console.log(res);
+import axios from 'axios';
+import { removeAdmin } from '../store/adminSlice';
+const Admin = () => {
+  const dispatch = useDispatch();
+  const admin = useSelector(store=>store.admin);
+  const [fdata,setFdata] = useState([]);
+  const navigate = useNavigate();
+  useEffect(()=>{
+    if(admin==null){
+      navigate('/adminlog');
+      return ;
     }
+    getData();
+  },[])
+
+  const getData =async ()=>{
+      const res= await axios.post("http://localhost:3000/adminprofile",{});
+      setFdata(res.data);
+      console.log(res);
+  }
 
 
-   //table
-   const columns = React.useMemo(
-    () => [
-      { Header: "Scientific name", accessor: "scientificname" },
-      { Header: "Age", accessor: "age" },
-      { Header: "Common Name", accessor: "commonname" },
-      { Header: "Location", accessor: "location" },
-      { Header: "Kingdom", accessor: "kingdom" },
-      { Header: "Phylum", accessor: "phylum" },
-      { Header: "Class", accessor: "class" },
-      { Header: "Family", accessor: "family" },
-      { Header: "Edit", accessor:"plantidy"}
-    ],
-    []
-  );
+ //table
+ const columns = React.useMemo(
+  () => [
+    { Header: "User Id", accessor: "userid" },
+    { Header: "Name", accessor: "username" },
+    { Header: "Mail", accessor: "email" },
+    { Header: "Password", accessor: "password" },
+    { Header: "Edit" , accessor:"id"} 
+  ],
+  []
+);
 
-  // Use react-table hooks for sorting and pagination
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    state: { pageIndex, pageSize },
-    gotoPage,
-    nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
-    pageCount,
-    setPageSize, // Add this line to define setPageSize
-  } = useTable(
-    {
-      columns,
-      data: fdata,
-      initialState: { pageIndex: 0, pageSize: 5 }, // You can set the initial page size here
-    },
-    useSortBy,
-    usePagination
-  ); 
-  
+// Use react-table hooks for sorting and pagination
+const {
+  getTableProps,
+  getTableBodyProps,
+  headerGroups,
+  page,
+  prepareRow,
+  state: { pageIndex, pageSize },
+  gotoPage,
+  nextPage,
+  previousPage,
+  canNextPage,
+  canPreviousPage,
+  pageOptions,
+  pageCount,
+  setPageSize, // Add this line to define setPageSize
+} = useTable(
+  {
+    columns,
+    data: fdata,
+    initialState: { pageIndex: 0, pageSize: 5 }, // You can set the initial page size here
+  },
+  useSortBy,
+  usePagination
+); 
+
   return (
     <div>
-      {show?<EditModal updatedata={updatedata} setShow={setShow} />:""}
-      <div className='flex justify-between m-4 p-4' >
+        <div className='flex justify-between m-4 p-4' >
         <div>
           <img src={profile} className='w-52' />
         </div>
         <div className='flex flex-col text-2xl gap-4 p-4 m-4'>
-          <h1>{userpresent?.username}</h1>
-          <h1>{userpresent?.email}</h1>
+          <h1>{admin?.email}</h1>
+          <h1 className='bg-red-200 rounded-md' 
+          onClick={()=>{
+            dispatch(removeAdmin(null));
+            navigate('/');
+          }}
+          >logout</h1>
         </div>
       </div>
       <div>
@@ -153,15 +142,6 @@ const Profile = () => {
                         </td>
                         )
                         :
-                        cell.column.Header==="Scientific name"?
-                        (
-                          <Link to={`/plant/${row.original.plantid}`} >
-                          <td {...cell.getCellProps()} className="py-2">
-                            {cell.render("Cell")}
-                          </td>
-                          </Link>
-                          )
-                          :
                         (
                         <td {...cell.getCellProps()} className="py-2">
                           {cell.render("Cell")}
@@ -207,15 +187,9 @@ const Profile = () => {
       )}
         </div>
       </div>
-        <div>
-            <Link to='/contribute' >
-                <h1 className='bg-blue-300 rounded-md'>
-                    Add Plants
-                </h1>
-            </Link>
-        </div>
+      <div className='flex h-48'></div>
     </div>
   )
 }
 
-export default Profile
+export default Admin

@@ -2,6 +2,7 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { removeuser } from '../store/userdata';
+import { removeAdmin } from '../store/adminSlice';
 
 
 const Header = () => {
@@ -26,6 +27,7 @@ const Header = () => {
                 {userpresent && <li
                   onClick={()=>{
                     dispatch(removeuser());
+                    dispatch(removeAdmin());
                     navigate('/');
                   }}
                 >Log out</li>}

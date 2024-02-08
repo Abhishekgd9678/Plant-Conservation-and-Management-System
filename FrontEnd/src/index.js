@@ -11,6 +11,9 @@ import Login from "./Login";
 import { Provider } from "react-redux";
 import store from "./store/store";
 import Profile from "./account/Profile";
+import AdminLogin from "./AdminLogin";
+import Admin from "./account/Admin";
+import PlantData from "./GetDetails/PlantData";
 
 const App=()=>{
     return (
@@ -48,6 +51,18 @@ const Approuter=createBrowserRouter([
             {
                 path:'/account',
                 element:<Profile />
+            },
+            {
+                path:'/adminlog',
+                element:<AdminLogin />
+            },
+            {
+                path:'/adminprofile',
+                element:<Admin />
+            },
+            {
+                path:'/plant/:id',
+                element:<PlantData />
             }
         ]
     },

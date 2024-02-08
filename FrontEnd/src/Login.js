@@ -47,7 +47,7 @@ const Login = () => {
 
   return (
     <div className='flex justify-center items-center h-screen w-full p-2' >
-        <div className='h-96 w-96 flex flex-col gap-6 shadow-lg bg-gray-300 rounded-lg p-4' >
+        <div className='h-auto w-96 flex flex-col gap-6 shadow-lg bg-gray-300 rounded-lg p-4' >
 
                 {login?
                     <h3 className='text-2xl'>Login</h3>
@@ -103,6 +103,13 @@ const Login = () => {
                         >Login</p>
                     </div>
                 }
+                <div
+                    onClick={()=>{
+                        navigate('/adminlog');
+                    }}
+                >
+                    <h1 className='text-lg bg-red-300 w-32 rounded-md px-2' >Admin Login</h1>
+                </div>
             </form>
         </div>
     </div>
