@@ -17,7 +17,7 @@ const PlantData = () => {
     }
   return (
     <div>
-
+        
     </div>
   )
 }

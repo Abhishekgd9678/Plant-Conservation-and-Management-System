@@ -37,18 +37,15 @@ const Contribute = () => {
         userid:userpresent.userid
       }).then(async(response)=>{
         console.log("response",response);
-        let taxon = await run(`Give the Kingdom,family,phylum,class of ${plantname} in the form of a json object`);
+        let taxon = await run(`Give the Kingdom,family,phylum,class of ${plantname} in the form of a json object without any extra words`);
         console.log(taxon);
         taxon = taxon.replace('```','');
         taxon = taxon.replace('```','');
         const jsonData = JSON.parse(taxon);
-        const taxonres = await axios.post("http://localhost:3000/taxon",{jsonData,id:response.data})
+        const taxonres = await axios.post("http://localhost:3000/taxon",{jsonData,id:response.data.plantid})
       })
-      console.log(response.data);
     } catch (error) {
       console.error("Error:", error.message);
-
-     
       setmsg("An error occurred while submitting the form. Please try again.");
     }
   }
