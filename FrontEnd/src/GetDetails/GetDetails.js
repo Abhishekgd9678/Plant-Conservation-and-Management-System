@@ -12,11 +12,11 @@ const GetDetails = () => {
 
   const getAllinfo = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/details");
+      const response = await axios.get("http://localhost:3000/alldetails");
       console.log(response.data);
-      setFdata(response.data);
+      setFdata(response.data)
     } catch (error) {
-      console.error("Error fetching details:", error);
+      console.error("Error fetching details :", error);
     }
   };
 
@@ -34,13 +34,13 @@ const GetDetails = () => {
   // Define your columns
   const columns = React.useMemo(
     () => [
-      { Header: "Sl.no", accessor: "plantid" },
-      { Header: "Scientific name", accessor: "plant_scientific_name" },
+     
+      { Header: "Scientific name", accessor: "scientificname" },
       { Header: "Age", accessor: "age" },
-      { Header: "Common Name", accessor: "common_name" },
-      { Header: "Genus", accessor: "genus" },
+      { Header: "Common Name", accessor: "commonname" },
+    
       { Header: "Location", accessor: "location" },
-      { Header: "Finder", accessor: "username" },
+     
     ],
     []
   );
