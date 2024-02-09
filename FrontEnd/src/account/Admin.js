@@ -6,11 +6,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTable, useSortBy, usePagination } from "react-table";
 import axios from 'axios';
 import { removeAdmin } from '../store/adminSlice';
+import EditUser from '../edit/EditUser';
 const Admin = () => {
   const dispatch = useDispatch();
   const admin = useSelector(store=>store.admin);
   const [fdata,setFdata] = useState([]);
   const [updatedata,setUpdateData] = useState();
+  const [show, setShow] = useState(false);
   const navigate = useNavigate();
   useEffect(()=>{
     if(admin==null){
@@ -18,7 +20,7 @@ const Admin = () => {
       return ;
     }
     getData();
-  },[])
+  },[show])
 
   const getData =async ()=>{
       const res= await axios.post("http://localhost:3000/adminprofile",{});
@@ -67,6 +69,7 @@ const {
 
   return (
     <div>
+      {show?<EditUser updatedata={updatedata} setShow={setShow} />:""}
         <div className='flex justify-between m-4 p-4' >
         <div>
           <img src={profile} className='w-52' />
@@ -137,6 +140,7 @@ const {
                           <button
                             onClick={()=>{
                               setUpdateData(row.original);
+                              setShow(true);
                               console.log(row.original);
                             }}
                           >Update</button>

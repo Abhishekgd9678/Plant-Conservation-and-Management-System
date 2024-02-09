@@ -8,6 +8,7 @@ function EditUser({setShow,updatedata}) {
 
     const handleUpdate =async ()=>{
         const response = await axios.post("http://localhost:3000/updateuser",{
+            id:updatedata.userid,
             name:uusername,
             password:upass
         });
@@ -25,45 +26,22 @@ function EditUser({setShow,updatedata}) {
                 </div>
             </div>
             <div className="flex justify-between" >
-                <label className="text-xl m-1 p-1" >Age</label>
-                <input name="count" value={uage}
+                <label className="text-xl m-1 p-1" >Name</label>
+                <input name="name" value={uusername}
                 onChange={(e)=>{
-                    setUage(e.target.value);
+                    setUusername(e.target.value);
                 }}
                 className="border border-gray-300 border-opacity-90 rounded-md m-1 p-1  text-black" />
             </div>
             <div className="flex justify-between">
-                <label className="text-xl m-1 p-1" >Expected lifetime</label>
-                <input name="count" value={ulife} 
+                <label className="text-xl m-1 p-1" >New Password</label>
+                <input name="password" value={upass} 
                 onChange={(e)=>{
-                    setUlife(e.target.value);
+                    setUpass(e.target.value);
                 }}
                 className="border border-gray-300 border-opacity-90 rounded-md m-1 p-1  text-black" />
             </div>
-            <div className="flex justify-between">
-                <label className="text-xl m-1 p-1" >Count</label>
-                <input name="count" value={ucount} 
-                onChange={(e)=>{
-                    setUcount(e.target.value);
-                }}
-                className="border border-gray-300 border-opacity-90 rounded-md m-1 p-1  text-black" />
-            </div>
-            <div className="flex justify-between">
-                <label className="text-xl m-1 p-1" >Common Name</label>
-                <input name="count" value={cname} 
-                onChange={(e)=>{
-                    setCname(e.target.value);
-                }}
-                className="border border-gray-300 border-opacity-90 rounded-md m-1 p-1  text-black" />
-            </div>
-            <div className="flex justify-between">
-                <label className="text-xl m-1 p-1" >Location</label>
-                <input name="count" value={ulocation} 
-                onChange={(e)=>{
-                    setUlocation(e.target.value);
-                }}
-                className="border border-gray-300 border-opacity-90 rounded-md m-1 p-1  text-black" />
-            </div>
+            
             <div
             onClick={()=>{
                 handleUpdate();
