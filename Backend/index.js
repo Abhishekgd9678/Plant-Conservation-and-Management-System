@@ -144,7 +144,7 @@ app.post('/update',(req,res)=>{
              WHERE plantid = ?`;
 
 const values = [req.body.name, req.body.age, req.body.life, req.body.location, req.body.count, req.body.plantid];
-
+ 
 db.query(sql, values, (err, result) => {
   if (err) {
     console.error('Error updating plantinfo:', err);
@@ -272,6 +272,22 @@ WHERE
     }
     else{
       res.json(data);
+    }
+  })
+})
+
+app.post('/updateuser',(req,res)=>{
+  const q = "UPDATE userdata set username=?, password=? where userid=?" ;
+  console.log(req.body);
+  const values = [req.body.name, req.body.password,req.body.id];
+
+  db.query(q,values,(err,data)=>{
+    if(err){
+      console.log("error",err);
+      return ;
+    }
+    else{
+      res.json({updated:true});
     }
   })
 })
