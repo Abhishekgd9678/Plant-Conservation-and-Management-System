@@ -10,6 +10,7 @@ const Admin = () => {
   const dispatch = useDispatch();
   const admin = useSelector(store=>store.admin);
   const [fdata,setFdata] = useState([]);
+  const [updatedata,setUpdateData] = useState();
   const navigate = useNavigate();
   useEffect(()=>{
     if(admin==null){
@@ -136,7 +137,7 @@ const {
                           <button
                             onClick={()=>{
                               setUpdateData(row.original);
-                              setShow(true);
+                              console.log(row.original);
                             }}
                           >Update</button>
                         </td>
