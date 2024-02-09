@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import run from "../Geminisearch";
+import loader from "../../images/icegif-1262.gif"
 
 const Contribute = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Contribute = () => {
       navigate('/log');
     }
   })
+  const [load,setLoad] = useState(false);
 
   const [plantname, setplantname] = useState("");
   const [age, setage] = useState("");
@@ -22,8 +24,7 @@ const Contribute = () => {
   const [count,setCount] = useState();
   const [msg, setmsg] = useState("");
 
-  const senddata = async (e) => {
-    e.preventDefault();
+  const senddata = async () => {
     if (plantname &&  age && location && commonname && expectedlifetime && count) {
       console.log("entered");
     try {
@@ -43,6 +44,10 @@ const Contribute = () => {
         taxon = taxon.replace('```','');
         const jsonData = JSON.parse(taxon);
         const taxonres = await axios.post("http://localhost:3000/taxon",{jsonData,id:response.data})
+        if(taxonres){
+          setLoad(false);
+          navigate('/account');
+        }
       })
     } catch (error) {
       console.error("Error:", error.message);
@@ -55,6 +60,12 @@ const Contribute = () => {
 }
 
   return (
+    <>
+    {load &&  <div className="fixed h-full w-full">
+      <div className="bg-white h-full flex justify-center">
+        <img className="w-52 h-20" src={loader} />
+      </div>
+    </div>}
     <div className="h-[90vh] flex justify-center items-center">
       <div className="h-[40rem] bg-gradient-to-r from-green-100 to-green-200 rounded-3xl">
         <form className="flex flex-col p-4 m-10 *:m-2">
@@ -128,7 +139,11 @@ const Contribute = () => {
           />
           <div className="flex justify-center">
             <button
-              onClick={senddata}
+              onClick={(e)=>{
+                e.preventDefault();
+                senddata();
+                setLoad(true);
+              }}
               className="bg-green-500 h-[40px] w-[150px] rounded-xl"
             >
               Submit Details
@@ -137,6 +152,7 @@ const Contribute = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

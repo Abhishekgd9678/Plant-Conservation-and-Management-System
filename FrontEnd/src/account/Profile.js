@@ -7,13 +7,19 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { useTable, useSortBy, usePagination } from "react-table";
 import EditModal from '../edit/EditModal';
+import ClimateRequirements from '../views/ClimateRequirements';
+import TaxonView from '../views/TaxonView';
+import EditClimate from '../edit/EditClimateR';
 
 const Profile = () => {
     const navigate = useNavigate();
     const userpresent = useSelector(store=>store.user);
     const admin = useSelector(store=>store.admin);
     const [show, setShow] = useState(false);
-
+    const [clickedid,setClickedId] = useState();
+    const [showtaxon, setShowtaxon] = useState(false);
+    const [showclimate,setShowClimate] = useState(false);
+    const [showclimateupdate,setShowClimateUpdate] = useState(false);
     const [updatedata,setUpdateData] = useState();
 
     const [fdata,setFdata] = useState([]);
@@ -28,7 +34,7 @@ const Profile = () => {
         return ;
       }
       getData();
-    },[show])
+    },[show,showclimateupdate])
 
     const getData =async ()=>{
         const res= await axios.post("http://localhost:3000/userplants",{id:userpresent.userid});
@@ -44,11 +50,9 @@ const Profile = () => {
       { Header: "Age", accessor: "age" },
       { Header: "Common Name", accessor: "commonname" },
       { Header: "Location", accessor: "location" },
-      { Header: "Kingdom", accessor: "kingdom" },
-      { Header: "Phylum", accessor: "phylum" },
-      { Header: "Class", accessor: "class" },
-      { Header: "Family", accessor: "family" },
-      { Header: "Edit", accessor:"plantidy"}
+      { Header: "Taxon", accessor: "" },
+      { Header: "Climate Requirements", accessor:""},
+      { Header: "Edit", accessor:""}
     ],
     []
   );
@@ -82,6 +86,9 @@ const Profile = () => {
   return (
     <div>
       {show?<EditModal updatedata={updatedata} setShow={setShow} />:""}
+      {showtaxon && <TaxonView setShowtaxon={setShowtaxon} id={clickedid} />}
+      {showclimate && <ClimateRequirements setShowClimate={setShowClimate} id={clickedid} />}
+      {showclimateupdate && <EditClimate setShowClimateUpdate={setShowClimateUpdate} id={clickedid} />}
       <div className='flex justify-between m-4 p-4' >
         <div>
           <img src={profile} className='w-52' />
@@ -141,7 +148,43 @@ const Profile = () => {
                       {...row.getRowProps()}
                     >
                       {row.cells.map((cell) => {
-                        return cell.column.Header==="Edit" ?
+                        return  cell.column.Header==="Taxon" ?
+                        (
+                        <td {...cell.getCellProps()} className="py-2">
+                          <button
+                            onClick={()=>{
+                              // setUpdateData(row.original);
+                              setShowtaxon(true);
+                              console.log(row);
+                              setClickedId(row.original?.plantid);
+                            }}
+                          >View</button>
+                        </td>
+                        )
+                        :
+                        cell.column.Header==="Climate Requirements" ?
+                              (
+                              <td {...cell.getCellProps()} className="py-2">
+                                <button
+                                className='mx-1 px-2 bg-gray-200 rounded-md'
+                                  onClick={()=>{
+                                    // setUpdateData(row.original);
+                                    setClickedId(row.original?.plantid);
+                                    setShowClimate(true);
+                                  }}
+                                >View</button>
+                                <button
+                                className='px-2 bg-gray-200 rounded-md'
+                                  onClick={()=>{
+                                    // setUpdateData(row.original);
+                                    setClickedId(row.original?.plantid);
+                                    setShowClimateUpdate(true);
+                                  }}
+                                >Update</button>
+                              </td>
+                              )
+                              :
+                        cell.column.Header==="Edit" ?
                         (
                         <td {...cell.getCellProps()} className="py-2">
                           <button

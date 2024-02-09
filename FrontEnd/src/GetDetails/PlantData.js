@@ -17,7 +17,10 @@ const PlantData = () => {
     }
   return (
     <div>
-        
+        <div>
+          <h1>Plant</h1>
+          {response[0]?.scientificname}
+        </div>
     </div>
   )
 }

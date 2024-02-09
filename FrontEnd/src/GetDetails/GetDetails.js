@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useTable, useSortBy, usePagination } from "react-table";
+import TaxonView from "../views/TaxonView";
+import ClimateRequirements from "../views/ClimateRequirements";
 
 const GetDetails = () => {
   const [area, setArea] = useState("");
   const [fdata, setFdata] = useState([]);
+  const [showtaxon, setShowtaxon] = useState(false);
+  const [showclimate,setShowClimate] = useState(false);
+  const [clickedid,setClickedId] = useState();
+  const [userwithmoreplants,setUserWithMorePlants] = useState(null);
 
   useEffect(() => {
     getAllinfo();
+    getHighest();
   }, []);
 
   const getAllinfo = async () => {
@@ -19,6 +26,11 @@ const GetDetails = () => {
       console.error("Error fetching details :", error);
     }
   };
+
+  const getHighest =async ()=>{
+    const res = await axios.post("http://localhost:3000/highest");
+    setUserWithMorePlants(res?.data[0]);
+  }
 
   const filterData = async () => {
     try {
@@ -38,9 +50,9 @@ const GetDetails = () => {
       { Header: "Scientific name", accessor: "scientificname" },
       { Header: "Age", accessor: "age" },
       { Header: "Common Name", accessor: "commonname" },
-    
       { Header: "Location", accessor: "location" },
-     
+      { Header: "Taxon" , accessor:""},
+      { Header: "Climate Requirements" , accessor:""},
     ],
     []
   );
@@ -73,6 +85,8 @@ const GetDetails = () => {
 
   return (
     <>
+    {showtaxon && <TaxonView setShowtaxon={setShowtaxon} id={clickedid} />}
+    {showclimate && <ClimateRequirements setShowClimate={setShowClimate} id={clickedid} />}
       <div className="mx-20 flex">
         <div className="bg-gray-200 rounded-3xl flex justify-center items-center">
           <form
@@ -145,11 +159,39 @@ const GetDetails = () => {
                       className="bg-white border-b border-gray-200"
                       {...row.getRowProps()}
                     >
-                      {row.cells.map((cell) => (
+                      {row.cells.map((cell) => {
+                        return  cell.column.Header==="Taxon" ?
+                        (
+                        <td {...cell.getCellProps()} className="py-2">
+                          <button
+                            onClick={()=>{
+                              // setUpdateData(row.original);
+                              setShowtaxon(true);
+                              console.log(row);
+                              setClickedId(row.original?.plantid);
+                            }}
+                          >View</button>
+                        </td>
+                        )
+                        :
+                        cell.column.Header==="Climate Requirements" ?
+                              (
+                              <td {...cell.getCellProps()} className="py-2">
+                                <button
+                                  onClick={()=>{
+                                    // setUpdateData(row.original);
+                                    setClickedId(row.original?.plantid);
+                                    setShowClimate(true);
+                                  }}
+                                >View</button>
+                              </td>
+                              )
+                              :
+                        (
                         <td {...cell.getCellProps()} className="py-2">
                           {cell.render("Cell")}
                         </td>
-                      ))}
+                      )})}
                     </tr>
                   );
                 })}
@@ -188,6 +230,9 @@ const GetDetails = () => {
           </select>
         </div>
       )}
+
+      <div>User with highest count of plants:</div>
+      <div>{userwithmoreplants?.username}</div>
     </>
   );
 };

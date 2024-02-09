@@ -12,7 +12,7 @@ const db = mysql.createConnection({
   user: 'root',
   database: 'plants',
   host: 'localhost',
-  password: 'Abhi9678@'
+  password: 'Ajay@mysql'
 });
 
 db.connect((err) => {
@@ -47,7 +47,7 @@ app.post('/details', (req, res) => {
 app.get('/alldetails', (req, res) => {
   
 
-  const q="select scientificname,age,commonname,expected_lifetime,location from plantinfo "
+  const q="select scientificname,age,commonname,expected_lifetime,location,plantid from plantinfo "
   db.query(q, (err, data) => {
     if (err) {
       console.error("Error while adding plant info:", err);
@@ -55,8 +55,6 @@ app.get('/alldetails', (req, res) => {
       res.json({ error: "An error occurred while adding plant info" });
     } else {
     res.json(data);
-     
-      
     }
   });
 });
@@ -64,17 +62,18 @@ app.get('/alldetails', (req, res) => {
 
 app.post('/taxon', async (req, res) => {
   try {
+    console.log(req.body);
     const { id, jsonData } = req.body;
     const { Kingdom, Family, Phylum, Class } = jsonData;
 
     // Insert taxon data into the database
     const taxonQuery = 'INSERT INTO taxon (kingdom, family, phylum, class, plantid) VALUES (?, ?, ?, ?, ?)';
-    const taxonValues = [Kingdom, Family, Phylum, Class, id];
+    const taxonValues = [Kingdom, Family, Phylum, Class, id.plantid];
     await db.query(taxonQuery, taxonValues);
 
     // Insert climate_requirements data into the database
     const climateQuery = 'INSERT INTO climate_requirements (plantid) VALUES (?)';
-    const climateValues = [id];
+    const climateValues = [id.plantid];
     await db.query(climateQuery, climateValues);
 
     console.log("Data insertion successful");
@@ -276,6 +275,7 @@ app.post('/plantdata',(req,res)=>{
   t.phylum,
   t.class,
   cr.temperature,
+  cr.soil_content,
   cr.humidity
 FROM 
   plantinfo pi
@@ -284,8 +284,8 @@ JOIN
 JOIN 
   climate_requirements cr ON pi.plantid = cr.plantid
 WHERE 
-  pi.plantid = ?;
-` ;
+  pi.plantid = ?`;
+
   const values = [req.body.id];
   db.query(q,values,(err,data)=>{
     if(err){ 
@@ -313,6 +313,67 @@ app.post('/updateuser',(req,res)=>{
     }
   })
 })
+
+app.post('/highest',(req,res)=>{
+  const q = `SELECT u.userid, u.username, u.email, COUNT(p.plantid) AS plant_count
+  FROM userdata u
+  JOIN plantinfo p ON u.userid = p.userid
+  GROUP BY u.userid, u.username, u.email
+  ORDER BY plant_count DESC
+  LIMIT 1;`
+
+  db.query(q,(err,data)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.json(data);
+    }
+  })
+})
+
+app.post('/gettaxon',(req,res)=>{
+  console.log(req.body);
+  const q = 'select * from taxon where plantid=?';
+  const values = [req.body.id];
+
+  db.query(q,values,(err,data)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.json(data);
+    }
+  })
+})
+
+app.post('/getclimate',(req,res)=>{
+  const q = 'select * from climate_requirements where plantid = ?'
+  
+  db.query(q,[req.body.id],(err,data)=>{
+    if(err)
+      console.log(err);
+    else{
+      res.json(data);
+    }
+  })
+})
+
+app.post('/updateclimate', (req, res) => {
+  console.log(req.body);
+  const q = 'UPDATE climate_requirements SET sunlight = ?, humidity = ?, temperature = ? WHERE plantid = ?';
+  const values = [req.body.sunlight, req.body.humidity, req.body.temperature, req.body.id];
+
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.json({ updated: false, error: err.message });
+    } else {
+      res.json({ updated: true });
+    }
+  });
+});
+
 
 
 app.listen(PORT, () => {
