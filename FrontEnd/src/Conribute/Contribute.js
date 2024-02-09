@@ -42,7 +42,7 @@ const Contribute = () => {
         taxon = taxon.replace('```','');
         taxon = taxon.replace('```','');
         const jsonData = JSON.parse(taxon);
-        const taxonres = await axios.post("http://localhost:3000/taxon",{jsonData,id:response.data.plantid})
+        const taxonres = await axios.post("http://localhost:3000/taxon",{jsonData,id:response.data})
       })
     } catch (error) {
       console.error("Error:", error.message);

@@ -12,7 +12,7 @@ const db = mysql.createConnection({
   user: 'root',
   database: 'plants',
   host: 'localhost',
-  password: 'Ajay@mysql'
+  password: 'Abhi9678@'
 });
 
 db.connect((err) => {
@@ -22,7 +22,6 @@ db.connect((err) => {
     console.log('Connected to the database');
   }
 });
-
 
 
 app.post('/details', (req, res) => {
@@ -42,6 +41,22 @@ app.post('/details', (req, res) => {
       // Get the inserted plantid
       const plantid = data.insertId;
       res.json({ plantid: plantid });
+    }
+  });
+});
+app.get('/alldetails', (req, res) => {
+  
+
+  const q="select scientificname,age,commonname,expected_lifetime,location from plantinfo "
+  db.query(q, (err, data) => {
+    if (err) {
+      console.error("Error while adding plant info:", err);
+    
+      res.json({ error: "An error occurred while adding plant info" });
+    } else {
+    res.json(data);
+     
+      
     }
   });
 });
@@ -215,6 +230,13 @@ app.post('/delete',(req,res)=>{
   });
 })
 
+app.post('/filter',(req,res)=>{
+ 
+  const q=`select scientificname,age,commonname,location from plantinfo where location="${req.body.area}"  `;
+  db.query(q,(err,data)=>{
+    res.json(data);
+  })
+})
 
 app.post('/adminprofile',(req,res)=>{
   const q = `select * from userdata`
