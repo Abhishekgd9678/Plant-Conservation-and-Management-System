@@ -7,6 +7,7 @@ import { removeAdmin } from '../store/adminSlice';
 
 const Header = () => {
   const userpresent = useSelector(store=>store.user);
+  const adminpresent = useSelector(store=>store.admin);
   const dispatch = useDispatch(removeuser);
   const navigate = useNavigate();
 
@@ -24,7 +25,10 @@ const Header = () => {
                 <Link to='/account'><li>Account</li></Link>
                 <Link to="/Contribute"><li>Contribute</li></Link>
                 <Link to='/GetDetails'><li>Get Details</li></Link>
-                {userpresent && <li
+                {
+                  adminpresent && <Link to='/adminprofile'><li>Admin</li></Link>
+                }
+                {(userpresent || adminpresent) && <li
                   onClick={()=>{
                     dispatch(removeuser());
                     dispatch(removeAdmin());

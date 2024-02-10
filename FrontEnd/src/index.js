@@ -14,6 +14,7 @@ import Profile from "./account/Profile";
 import AdminLogin from "./AdminLogin";
 import Admin from "./account/Admin";
 import PlantData from "./GetDetails/PlantData";
+import Action from "./account/Action";
 
 const App=()=>{
     return (
@@ -63,6 +64,10 @@ const Approuter=createBrowserRouter([
             {
                 path:'/plant/:id',
                 element:<PlantData />
+            },
+            {
+                path:'/actionpage',
+                element:<Action />
             }
         ]
     },

@@ -7,25 +7,40 @@ import { useTable, useSortBy, usePagination } from "react-table";
 import axios from 'axios';
 import { removeAdmin } from '../store/adminSlice';
 import EditUser from '../edit/EditUser';
+import ShowMsg from './ShowMsg';
 const Admin = () => {
   const dispatch = useDispatch();
   const admin = useSelector(store=>store.admin);
   const [fdata,setFdata] = useState([]);
+  const [msg,setMsg] = useState();
+  const [showmsg,setShowMsg] = useState(false);
+  const [plantid,setPlantid] = useState();
+  const [userid,setUserid] = useState();
   const [updatedata,setUpdateData] = useState();
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
+  useEffect(()=>{
+    getData();
+  },[show])
+
   useEffect(()=>{
     if(admin==null){
       navigate('/adminlog');
       return ;
     }
-    getData();
-  },[show])
+    getMessage();
+  },[])
+
+  const getMessage =async ()=>{
+    const res= await axios.get("http://localhost:3000/adminmessage");
+      setMsg(res?.data[0]?.message);
+      setPlantid(res?.data[0]?.last_updated_plantid);
+      setUserid(res?.data[0]?.last_updated_userid)
+  }
 
   const getData =async ()=>{
       const res= await axios.post("http://localhost:3000/adminprofile",{});
       setFdata(res.data);
-      console.log(res);
   }
 
 
@@ -75,13 +90,23 @@ const {
           <img src={profile} className='w-52' />
         </div>
         <div className='flex flex-col text-2xl gap-4 p-4 m-4'>
+          <h1 
+
+          className='flex items-center' >
+            <div
+                        onClick={()=>{
+                          console.log("clicked")
+                          setShowMsg(true);
+                        }}            
+            >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-8">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+          </svg>
+          </div>
+          {msg}
+          </h1>
+          {showmsg===true ? <ShowMsg setShowMsg={setShowMsg} plantid={plantid} userid={userid} /> : console.log(showmsg)}
           <h1>{admin?.email}</h1>
-          <h1 className='bg-red-200 rounded-md' 
-          onClick={()=>{
-            dispatch(removeAdmin(null));
-            navigate('/');
-          }}
-          >logout</h1>
         </div>
       </div>
       <div>

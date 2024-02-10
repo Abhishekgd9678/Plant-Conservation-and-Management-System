@@ -248,6 +248,30 @@ app.post('/adminprofile',(req,res)=>{
   })
 })
 
+app.get('/adminmessage',(req,res)=>{
+  const q = `select message,last_updated_userid,last_updated_plantid from admin where adminid=1`
+  db.query(q,(err,data)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.json(data);
+    }
+  })
+})
+
+app.get('/adminmessagedone',(req,res)=>{
+  const q = 'update admin set message=0 where adminid=1';
+  db.query(q,(err,data)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.json({update:true})
+    }
+  })
+})
+
 app.post('/adminlog',(req,res)=>{
   console.log(req.body);
   const q = 'select 8 from userdata where gmail=? and password=?'
@@ -374,6 +398,36 @@ app.post('/updateclimate', (req, res) => {
   });
 });
 
+app.post('/getuserplantdata',(req,res)=>{
+  const {plantid,userid} = req.body ;
+  db.query('CALL GetPlantInfoAndUserData(?, ?)', [plantid, userid], (err, results) => {
+    if (err) {
+      console.error('Error calling stored procedure:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      // Retrieve the result sets from the stored procedure
+      const plantInfo = results[0];
+      const userData = results[1];
+      console.log(results);
+      // Send the retrieved data as a JSON response
+      res.json({ plantInfo, userData });
+    }
+  });
+})
+
+app.post('/addplantcount',(req,res)=>{
+  const {count, userid, plantid} = req.body;
+  const q = 'update userdata set plantid=?, needtoplant= ?, message=1 where userid=?';
+  const values = [plantid, count,userid] ;
+  db.query(q,values,(err,data)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.json({sent:true});
+    }
+  })
+})
 
 
 app.listen(PORT, () => {
