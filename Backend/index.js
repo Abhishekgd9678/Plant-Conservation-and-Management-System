@@ -322,6 +322,7 @@ WHERE
   })
 })
 
+
 app.post('/updateuser',(req,res)=>{
   const q = "UPDATE userdata set username=?, password=? where userid=?" ;
   console.log(req.body);
@@ -400,7 +401,8 @@ app.post('/updateclimate', (req, res) => {
 
 app.post('/getuserplantdata',(req,res)=>{
   const {plantid,userid} = req.body ;
-  db.query('CALL GetPlantInfoAndUserData(?, ?)', [plantid, userid], (err, results) => {
+  console.log(req.body);
+  db.query('CALL GetPlantInfoAndUserData(?, ?)', [userid,plantid], (err, results) => {
     if (err) {
       console.error('Error calling stored procedure:', err);
       res.status(500).json({ error: 'Internal server error' });

@@ -70,6 +70,13 @@ function EditClimate({setShowClimateUpdate,id}) {
             >
                 Update
             </div>
+            <div
+            onClick={()=>{
+                setShowClimateUpdate(false);
+            }}
+            >
+                Cancel
+            </div>
         </div>
       </div>
     </>

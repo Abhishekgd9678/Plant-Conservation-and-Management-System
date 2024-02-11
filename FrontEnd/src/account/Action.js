@@ -36,7 +36,8 @@ const Action = () => {
     }
     
     const getMessage =async ()=>{
-        const res= await axios.get("http://localhost:3000/adminmessage")
+        const res= await axios.get("http://localhost:3000/adminmessage");
+        console.log(res.data);
         getdata(res?.data[0]?.last_updated_plantid,res?.data[0]?.last_updated_userid);
         setPlantid(res?.data[0]?.last_updated_plantid);
         setUserid(res?.data[0]?.last_updated_userid);
@@ -44,8 +45,8 @@ const Action = () => {
 
     const getdata =async (x,y)=>{
         const response = await axios.post("http://localhost:3000/getuserplantdata",{
-            userid:x,
-            plantid:y
+            userid:y,
+            plantid:x
         });
         console.log(response);
         setData(response?.data?.plantInfo[0]);
@@ -60,8 +61,8 @@ const Action = () => {
             </div>
             <div>
                 <ul>
-                    <li>Name: {data?.plant_info_scientificname}</li>
-                    <li>Present Count: {data?.plant_count}</li>
+                    <li>Name: {data?.plantinfo_scientificname}</li>
+                    <li>Present Count: {data?.plantinfo_count}</li>
                     {/* <li>Previous Count: {data}</li> */}
                 </ul>
             </div>
@@ -72,8 +73,8 @@ const Action = () => {
             </div>
             <div>
                 <ul>
-                    <li>User Id: {data?.user_data_id}</li>
-                    <li>User Name: {data?.user_data_username}</li>
+                    <li>User Id: {data?.userdata_userid}</li>
+                    <li>User Name: {data?.userdata_username}</li>
                 </ul>
             </div>
         </div>

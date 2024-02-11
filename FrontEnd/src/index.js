@@ -15,6 +15,7 @@ import AdminLogin from "./AdminLogin";
 import Admin from "./account/Admin";
 import PlantData from "./GetDetails/PlantData";
 import Action from "./account/Action";
+import UserAction from "./account/UserAction";
 
 const App=()=>{
     return (
@@ -68,6 +69,10 @@ const Approuter=createBrowserRouter([
             {
                 path:'/actionpage',
                 element:<Action />
+            },
+            {
+                path:'/useraction',
+                element:<UserAction />
             }
         ]
     },

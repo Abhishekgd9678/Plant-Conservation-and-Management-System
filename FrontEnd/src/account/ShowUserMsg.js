@@ -10,7 +10,7 @@ const ShowUserMsg = ({setShowMsg}) => {
         <h1>Told to Plant</h1>
         <h1
         onClick={()=>{
-            // navigate('/useractionpage');
+            navigate('/useraction');
         }}
         className='underline'
         >Details</h1>
