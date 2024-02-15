@@ -38,11 +38,18 @@ const Contribute = () => {
         userid:userpresent.userid
       }).then(async(response)=>{
         console.log("response",response);
-        let taxon = await run(`Give the Kingdom,family,phylum,class of ${plantname} in the form of a json object without any extra words`);
+        if(response?.data?.error){
+          alert(response?.data?.error);
+          setLoad(false);
+          return ;
+        }
+        let taxon = await run(`Provide the information of ${plantname}. The response should be in the form of a JSON object with the following keys: 'Kingdom', 'Family', 'Phylum', and 'Class'. Ensure there are no additional words or characters in the response.`);
         console.log(taxon);
         taxon = taxon.replace('```','');
         taxon = taxon.replace('```','');
+        taxon = taxon.replace('json','')
         const jsonData = JSON.parse(taxon);
+        console.log(jsonData);
         const taxonres = await axios.post("http://localhost:3000/taxon",{jsonData,id:response.data})
         if(taxonres){
           setLoad(false);
@@ -53,11 +60,11 @@ const Contribute = () => {
       console.error("Error:", error.message);
       setmsg("An error occurred while submitting the form. Please try again.");
     }
+    }
+    else{
+      alert("fill all");
+    }
   }
-  else{
-    alert("fill all");
-  }
-}
 
   return (
     <>
@@ -129,14 +136,6 @@ const Contribute = () => {
             <option value="Vidyaranyapuram">Vidyaranyapuram</option>
             <option value="Kuvempu Nagar">Kuvempu Nagar</option>
           </select>
-
-          <label htmlFor="plant_picture">Upload Picture:</label>
-          <input
-            type="file"
-            id="plant_picture"
-            name="plant_picture"
-            accept="image/*"
-          />
           <div className="flex justify-center">
             <button
               onClick={(e)=>{

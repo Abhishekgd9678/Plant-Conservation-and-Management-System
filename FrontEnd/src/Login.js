@@ -20,12 +20,12 @@ const Login = () => {
                 mail:mail,
                 password:pass
             });
-            if(res.data){
+            if(!res?.data?.failed){
                 dispatch(addUser(res.data[0]))
                 navigate('/account');
             }
             else{
-                alert(res.data);
+                alert("Invalid Email or Password");
             }
         }
         else{

@@ -6,20 +6,8 @@ const ShowUserMsg = ({setShowMsg}) => {
     const navigate = useNavigate();
 
   return (
-    <div className='absolute bg-gray-300 bg-opacity-50 w-64' >
-        <h1>Told to Plant</h1>
-        <h1
-        onClick={()=>{
-            navigate('/useraction');
-        }}
-        className='underline'
-        >Details</h1>
-        <h1
-        onClick={()=>{
-            setShowMsg(false)
-        }}
-        >Done</h1>
-        
+    <div className='absolute top-10 -left-28 bg-gray-300 bg-opacity-50 w-auto' >
+        <h1>You have a message</h1>       
     </div>
   )
 }

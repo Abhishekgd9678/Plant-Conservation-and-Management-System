@@ -27,27 +27,47 @@ db.connect((err) => {
 app.post('/details', (req, res) => {
   const { plantname, commonname, age, count, location, expectedlifetime, userid } = req.body;
 
-  // Prepare the SQL query with parameterized placeholders for plantinfo insertion
-  const q = `INSERT INTO plantinfo (scientificname, age, commonname, location, expected_lifetime, count, userid)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  // Check if a plant with the same name, location, and age exists
+  const checkQuery = `SELECT plantid FROM plantinfo 
+                      WHERE scientificname = ? 
+                      AND location = ? 
+                      AND age = ?`;
 
-  // Execute the plantinfo insertion query with parameters
-  db.query(q, [plantname, age, commonname, location, expectedlifetime, count, userid], (err, data) => {
-    if (err) {
-      console.error("Error while adding plant info:", err);
+  // Execute the check query with parameters
+  db.query(checkQuery, [plantname, location, age], (checkErr, checkData) => {
+    if (checkErr) {
+      console.error("Error while checking for existing plant:", checkErr);
       // Send error response
-      res.json({ error: "An error occurred while adding plant info" });
+      res.json({ error: "An error occurred while checking for existing plant" });
+    } else if (checkData.length > 0) {
+      // Plant with the same name, location, and age exists
+      res.json({ error: "A plant with the same name, location, and age already exists" });
     } else {
-      // Get the inserted plantid
-      const plantid = data.insertId;
-      res.json({ plantid: plantid });
+      // Insert the new plant info
+      const insertQuery = `INSERT INTO plantinfo 
+                           (scientificname, age, commonname, location, expected_lifetime, count, userid)
+                           VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+      // Execute the plantinfo insertion query with parameters
+      db.query(insertQuery, [plantname, age, commonname, location, expectedlifetime, count, userid], (insertErr, insertData) => {
+        if (insertErr) {
+          console.error("Error while adding plant info:", insertErr);
+          // Send error response
+          res.json({ error: "An error occurred while adding plant info" });
+        } else {
+          // Get the inserted plantid
+          const plantid = insertData.insertId;
+          res.json({ plantid: plantid });
+        }
+      });
     }
   });
 });
+
+
 app.get('/alldetails', (req, res) => {
   
-
-  const q="select scientificname,age,commonname,expected_lifetime,location,plantid from plantinfo "
+  const q="select scientificname,age,count,plantid,commonname,expected_lifetime,location,plantid from plantinfo "
   db.query(q, (err, data) => {
     if (err) {
       console.error("Error while adding plant info:", err);
@@ -69,12 +89,15 @@ app.post('/taxon', async (req, res) => {
     // Insert taxon data into the database
     const taxonQuery = 'INSERT INTO taxon (kingdom, family, phylum, class, plantid) VALUES (?, ?, ?, ?, ?)';
     const taxonValues = [Kingdom, Family, Phylum, Class, id.plantid];
-    await db.query(taxonQuery, taxonValues);
+    console.log(taxonValues);
+    db.query(taxonQuery, taxonValues,(err,data)=>{
+      if(err) console.log(err);
+    });
 
     // Insert climate_requirements data into the database
     const climateQuery = 'INSERT INTO climate_requirements (plantid) VALUES (?)';
     const climateValues = [id.plantid];
-    await db.query(climateQuery, climateValues);
+    db.query(climateQuery, climateValues);
 
     console.log("Data insertion successful");
     res.json({ message: "Data insertion successful" });
@@ -107,7 +130,7 @@ app.post("/login", (req, res) => {
           } else {
               if (results.length === 0) {
                   // No user found with the provided email and password
-                  res.json("Invalid email or password" );
+                  res.json({failed:true});
               } else {
                   // User found, login successful
                   res.json(results);
@@ -172,68 +195,66 @@ db.query(sql, values, (err, result) => {
 })
 
 
-app.post('/delete',(req,res)=>{
-  const id = (req.body.plantid);
-  const q = `DELETE FROM plantinfo WHERE plantid = ?; DELETE FROM taxon WHERE plantid = ?`;
-  const values = [id,id];
+app.post('/delete', (req, res) => {
+  const id = req.body.plantid;
+  const q = `
+    DELETE plantinfo, taxon, climate_requirements
+    FROM plantinfo
+    LEFT JOIN taxon ON plantinfo.plantid = taxon.plantid
+    LEFT JOIN climate_requirements ON plantinfo.plantid = climate_requirements.plantid
+    WHERE plantinfo.plantid = ?;
+  `;
+  
   db.beginTransaction(err => {
     if (err) {
       console.error('Error beginning transaction:', err);
-      // Handle error
       res.json({ error: 'An error occurred while beginning transaction' });
       return;
     }
-  
-    // Delete from plantinfo table
-    const q1 = `DELETE FROM plantinfo WHERE plantid = ?`;
-    db.query(q1, [id], (err1, result1) => {
-      if (err1) {
-        console.error('Error deleting from plantinfo:', err1);
-        // Rollback transaction
+
+    db.query(q, [id], (err, result) => {
+      if (err) {
+        console.error('Error deleting plant data:', err);
         db.rollback(() => {
           console.error('Transaction rolled back');
-          // Handle error
-          res.json({ error: 'An error occurred while deleting from plantinfo' });
+          res.json({ error: 'An error occurred while deleting plant data' });
         });
         return;
       }
-  
-      // Delete from taxon table
-      const q2 = `DELETE FROM taxon WHERE plantid = ?`;
-      db.query(q2, [id], (err2, result2) => {
-        if (err2) {
-          console.error('Error deleting from taxon:', err2);
-          // Rollback transaction
-          db.rollback(() => {
-            console.error('Transaction rolled back');
-            // Handle error
-            res.json({ error: 'An error occurred while deleting from taxon' });
-          });
+
+      db.commit(err => {
+        if (err) {
+          console.error('Error committing transaction:', err);
+          res.json({ error: 'An error occurred while committing transaction' });
         } else {
-          console.log('Rows deleted successfully');
-          // Commit transaction
-          db.commit(err => {
-            if (err) {
-              console.error('Error committing transaction:', err);
-              // Handle error
-              res.json({ error: 'An error occurred while committing transaction' });
-            } else {
-              console.log('Transaction committed');
-              // Handle success
-              res.json({ deleted: true });
-            }
-          });
+          console.log('Transaction committed');
+          res.json({ deleted: true });
         }
       });
     });
   });
-})
+});
+
 
 app.post('/filter',(req,res)=>{
  
   const q=`select scientificname,age,commonname,location from plantinfo where location="${req.body.area}"  `;
   db.query(q,(err,data)=>{
     res.json(data);
+  })
+})
+
+app.post('/filtername',(req,res)=>{
+  const query = 'CALL SearchPlants(?)';
+  const {search} = req.body;
+  console.log(req.body)
+  db.query(query,[search],(err,data)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.json(data);
+    }
   })
 })
 
@@ -287,31 +308,9 @@ app.post('/adminlog',(req,res)=>{
 })
 
 app.post('/plantdata',(req,res)=>{
-  const q = `SELECT 
-  pi.plantid,
-  pi.scientificname,
-  pi.age,
-  pi.commonname,
-  pi.location,
-  pi.expected_lifetime,
-  t.kingdom,
-  t.family,
-  t.phylum,
-  t.class,
-  cr.temperature,
-  cr.soil_content,
-  cr.humidity
-FROM 
-  plantinfo pi
-JOIN 
-  taxon t ON pi.plantid = t.plantid
-JOIN 
-  climate_requirements cr ON pi.plantid = cr.plantid
-WHERE 
-  pi.plantid = ?`;
-
+  const q = `SELECT * FROM PlantDetails WHERE plantid = ?`;
   const values = [req.body.id];
-  db.query(q,values,(err,data)=>{
+  db.query(q, values, (err, data) => {
     if(err){ 
       console.log(err);
       res.json({error:"error"});
@@ -319,8 +318,8 @@ WHERE
     else{
       res.json(data);
     }
-  })
-})
+  });
+});
 
 
 app.post('/updateuser',(req,res)=>{

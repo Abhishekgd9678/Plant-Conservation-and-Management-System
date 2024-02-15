@@ -28,6 +28,9 @@ function EditModal({setShow,updatedata}) {
         });
         if(response.data.deleted)
             setShow(false);
+        else{
+            alert(response.data.error);
+        }
     }
 
   return(

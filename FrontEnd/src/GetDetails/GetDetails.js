@@ -3,6 +3,7 @@ import axios from "axios";
 import { useTable, useSortBy, usePagination } from "react-table";
 import TaxonView from "../views/TaxonView";
 import ClimateRequirements from "../views/ClimateRequirements";
+import { Link } from "react-router-dom";
 
 const GetDetails = () => {
   const [area, setArea] = useState("");
@@ -11,6 +12,8 @@ const GetDetails = () => {
   const [showclimate,setShowClimate] = useState(false);
   const [clickedid,setClickedId] = useState();
   const [userwithmoreplants,setUserWithMorePlants] = useState(null);
+  const [fliterid,setFilterId] = useState();
+  const [search,setSearch] = useState();
 
   useEffect(() => {
     getAllinfo();
@@ -20,7 +23,6 @@ const GetDetails = () => {
   const getAllinfo = async () => {
     try {
       const response = await axios.get("http://localhost:3000/alldetails");
-      console.log(response.data);
       setFdata(response.data)
     } catch (error) {
       console.error("Error fetching details :", error);
@@ -43,12 +45,29 @@ const GetDetails = () => {
     }
   };
 
+  const filteruser =async ()=>{
+    const response = await axios.post("http://localhost:3000/userplants",{
+      id:fliterid,
+    })
+
+    setFdata(response.data);
+  }
+
+  const flitername =async ()=>{
+    const response = await axios.post("http://localhost:3000/filtername",{
+      search:search,
+    })
+    console.log(response.data);
+    setFdata(response.data[0]); 
+  }
+
   // Define your columns
   const columns = React.useMemo(
     () => [
      
       { Header: "Scientific name", accessor: "scientificname" },
       { Header: "Age", accessor: "age" },
+      { Header: "Count", accessor: "count" },
       { Header: "Common Name", accessor: "commonname" },
       { Header: "Location", accessor: "location" },
       { Header: "Taxon" , accessor:""},
@@ -87,7 +106,7 @@ const GetDetails = () => {
     <>
     {showtaxon && <TaxonView setShowtaxon={setShowtaxon} id={clickedid} />}
     {showclimate && <ClimateRequirements setShowClimate={setShowClimate} id={clickedid} />}
-      <div className="mx-20 flex">
+      <div className="mx-20 flex gap-4">
         <div className="bg-gray-200 rounded-3xl flex justify-center items-center">
           <form
             method="post"
@@ -113,6 +132,48 @@ const GetDetails = () => {
             </div>
           </form>
         </div>
+        <div className="bg-gray-200 rounded-3xl flex justify-center items-center">
+        <div className="*:m-2">
+              <label htmlFor="AreaName">Enter User id</label>
+              <input
+                className="border border-black"
+                type="text"
+                id="AreaName"
+                name="AreaName"
+                onChange={(e)=>{
+                  setFilterId(e.target.value);
+                }}
+              />
+              <button
+                type="button"
+                onClick={filteruser}
+                className="m-2 rounded-lg p-2 bg-blue-400"
+              >
+                Get Details
+              </button>
+            </div>
+            </div>
+            <div className="bg-gray-200 rounded-3xl flex justify-center items-center">
+            <div className="*:m-2">
+              <label htmlFor="AreaName">Enter Name</label>
+              <input
+                className="border border-black"
+                type="text"
+                id="AreaName"
+                name="AreaName"
+                onChange={(e)=>{
+                  setSearch(e.target.value);
+                }}
+              />
+              <button
+                type="button"
+                onClick={flitername}
+                className="m-2 rounded-lg p-2 bg-blue-400"
+              >
+                Get Details
+              </button>
+            </div>
+            </div>
       </div>
 
       {fdata.length > 0 && (
@@ -167,13 +228,21 @@ const GetDetails = () => {
                             onClick={()=>{
                               // setUpdateData(row.original);
                               setShowtaxon(true);
-                              console.log(row);
                               setClickedId(row.original?.plantid);
                             }}
                           >View</button>
                         </td>
                         )
                         :
+                        cell.column.Header==="Scientific name"?
+                        (
+                          <Link to={`/plant/${row.original.plantid}`} >
+                          <td {...cell.getCellProps()} className="py-2">
+                            {cell.render("Cell")}
+                          </td>
+                          </Link>
+                          )
+                          :
                         cell.column.Header==="Climate Requirements" ?
                               (
                               <td {...cell.getCellProps()} className="py-2">
