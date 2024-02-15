@@ -1,288 +1,246 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
-import profile from "../../images/profile.png"
-
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom'
-
-import { useTable, useSortBy, usePagination } from "react-table";
+import { Link, useNavigate } from 'react-router-dom';
+import { useTable, useSortBy, usePagination } from 'react-table';
+import { HiOutlineEye, HiOutlinePencilAlt } from 'react-icons/hi'; 
+import profile from "../../images/1.jpg";
 import EditModal from '../edit/EditModal';
 import ClimateRequirements from '../views/ClimateRequirements';
 import TaxonView from '../views/TaxonView';
 import EditClimate from '../edit/EditClimateR';
-import ShowUserMsg from './ShowUserMsg';
 
 const Profile = () => {
     const navigate = useNavigate();
-    const userpresent = useSelector(store=>store.user);
-    const admin = useSelector(store=>store.admin);
+    const userpresent = useSelector(store => store.user);
+    const admin = useSelector(store => store.admin);
     const [show, setShow] = useState(false);
-    const [clickedid,setClickedId] = useState();
+    const [clickedid, setClickedId] = useState();
     const [showtaxon, setShowtaxon] = useState(false);
-    const [showclimate,setShowClimate] = useState(false);
-    const [showclimateupdate,setShowClimateUpdate] = useState(false);
-    const [updatedata,setUpdateData] = useState();
+    const [showclimate, setShowClimate] = useState(false);
+    const [showclimateupdate, setShowClimateUpdate] = useState(false);
+    const [updatedata, setUpdateData] = useState();
+    const [fdata, setFdata] = useState([]);
 
-    const [showmsg,setShowMsg] = useState();
+    useEffect(() => {
+        if (!userpresent && !admin) {
+            navigate('/log');
+        } else if (admin) {
+            navigate('/adminprofile');
+        } else {
+            getData();
+        }
+    }, [show, showclimateupdate]);
 
-    const [fdata,setFdata] = useState([]);
-
-    useEffect(()=>{
-      if(!userpresent && !admin){
-        navigate('/log');
-        return ;
-      }
-      else if(admin){
-        navigate('/adminprofile');
-        return ;
-      }
-      getData();
-    },[show,showclimateupdate])
-
-    const getData =async ()=>{
-        const res= await axios.post("http://localhost:3000/userplants",{id:userpresent.userid});
+    const getData = async () => {
+        const res = await axios.post("http://localhost:3000/userplants", { id: userpresent.userid });
         setFdata(res.data);
-        console.log(res);
-    }
+    };
 
-   //table
-   const columns = React.useMemo(
-    () => [
-      { Header: "Scientific name", accessor: "scientificname" },
-      { Header: "Age", accessor: "age" },
-      { Header: "Common Name", accessor: "commonname" },
-      { Header: "Location", accessor: "location" },
-      { Header: "Count", accessor: "count"},
-      { Header: "Expected Lifetime", accessor: "expected_lifetime"},
-      { Header: "Taxon", accessor: "" },
-      { Header: "Climate Requirements", accessor:""},
-      { Header: "Edit", accessor:""}
-    ], 
-    []
-  );
-
-  // Use react-table hooks for sorting and pagination
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    state: { pageIndex, pageSize },
-    gotoPage,
-    nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
-    pageCount,
-    setPageSize, // Add this line to define setPageSize
-  } = useTable(
-    {
-      columns,
-      data: fdata,
-      initialState: { pageIndex: 0, pageSize: 5 }, // You can set the initial page size here
-    },
-    useSortBy,
-    usePagination
-  ); 
-  
-  return (
-    <div>
-      {show?<EditModal updatedata={updatedata} setShow={setShow} />:""}
-      {showtaxon && <TaxonView setShowtaxon={setShowtaxon} id={clickedid} />}
-      {showclimate && <ClimateRequirements setShowClimate={setShowClimate} id={clickedid} />}
-      {showclimateupdate && <EditClimate setShowClimateUpdate={setShowClimateUpdate} id={clickedid} />}
-      <div className='flex justify-between m-4 p-4' >
-        <div>
-          <img src={profile} className='w-52' />
-        </div>
-        <div className='flex flex-col text-2xl gap-4 p-4 m-4'>
-          <h1>{userpresent?.username}</h1>
-          <h1>{userpresent?.email}</h1>
-          <div className='flex flex-col text-2xl gap-4 p-4 m-4'>
-{ userpresent?.message  &&<h1 
-          className='flex items-center relative' >
-            <div
-                        onMouseEnter={()=>{
-                          setShowMsg(true);
-                        }}  
-                        onMouseLeave={()=>{
-                          setShowMsg(false);
-                        }}       
-            >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-8">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-          </svg>
-          </div>
-          {showmsg && <ShowUserMsg setShowMsg={setShowMsg}/>}
-          {userpresent?.message}
-          </h1>}
-          <h1>{admin?.email}</h1>
-        </div>
-        </div>
-      </div>
-      <div>
-        <div>
-          User Plants
-        </div>
-        <div>
-        {fdata.length > 0 && (
-        <div className="flex items-center justify-center">
-          <div className="mx-auto w-full lg:w-[40rem] bg-white p-4 rounded-lg flex justify-center">
-            {/* React-table */}
-            <table {...getTableProps()} className="w-full table-auto text-center ">
-              <thead>
-                {headerGroups.map((headerGroup) => (
-                  <tr
-                    {...headerGroup.getHeaderGroupProps()}
-                    className="bg-gray-200 text-gray-700 text-xl font-semibold"
-                  >
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps(
-                          column.getSortByToggleProps()
-                        )}
-                        className="py-2 min-w-[150px]"
-                      >
-                        {column.render("Header")}
-                        <span>
-                          {column.isSorted ? (
-                            column.isSortedDesc ? (
-                              <span className="ml-1">🔽</span>
-                            ) : (
-                              <span className="ml-1">🔼</span>
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {page.map((row) => {
-                  prepareRow(row);
-                  return (
-                    <tr
-                      key={row.id}
-                      className="bg-white border-b border-gray-200"
-                      {...row.getRowProps()}
+ 
+    const columns = React.useMemo(
+        () => [
+            { Header: "Scientific name", accessor: "scientificname" },
+            { Header: "Age", accessor: "age" },
+            { Header: "Common Name", accessor: "commonname" },
+            { Header: "Location", accessor: "location" },
+            { Header: "Count", accessor: "count" },
+            { Header: "Expected Lifetime", accessor: "expected_lifetime" },
+            {
+                Header: "Taxon",
+                accessor: "",
+                Cell: ({ row }) => (
+                    <button
+                        onClick={() => {
+                            setShowtaxon(true);
+                            setClickedId(row.original?.plantid);
+                        }}
+                        className="text-green-500 hover:text-green-700 transition duration-300"
                     >
-                      {row.cells.map((cell) => {
-                        return  cell.column.Header==="Taxon" ?
-                        (
-                        <td {...cell.getCellProps()} className="py-2">
-                          <button
-                            onClick={()=>{
-                              // setUpdateData(row.original);
-                              setShowtaxon(true);
-                              console.log(row);
-                              setClickedId(row.original?.plantid);
-                            }}
-                          >View</button>
-                        </td>
-                        )
-                        :
-                        cell.column.Header==="Climate Requirements" ?
-                              (
-                              <td {...cell.getCellProps()} className="py-2">
-                                <button
-                                className='mx-1 px-2 bg-gray-200 rounded-md'
-                                  onClick={()=>{
-                                    // setUpdateData(row.original);
-                                    setClickedId(row.original?.plantid);
-                                    setShowClimate(true);
-                                  }}
-                                >View</button>
-                                <button
-                                className='px-2 bg-gray-200 rounded-md'
-                                  onClick={()=>{
-                                    // setUpdateData(row.original);
-                                    setClickedId(row.original?.plantid);
-                                    setShowClimateUpdate(true);
-                                  }}
-                                >Update</button>
-                              </td>
-                              )
-                              :
-                        cell.column.Header==="Edit" ?
-                        (
-                        <td {...cell.getCellProps()} className="py-2">
-                          <button
-                            onClick={()=>{
-                              setUpdateData(row.original);
-                              setShow(true);
-                            }}
-                          >Update</button>
-                        </td>
-                        )
-                        :
-                        cell.column.Header==="Scientific name"?
-                        (
-                          <Link to={`/plant/${row.original.plantid}`} >
-                          <td {...cell.getCellProps()} className="py-2">
-                            {cell.render("Cell")}
-                          </td>
-                          </Link>
-                          )
-                          :
-                        (
-                        <td {...cell.getCellProps()} className="py-2">
-                          {cell.render("Cell")}
-                        </td>
-                      )})}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+                        <HiOutlineEye />
+                    </button>
+                )
+            },
+            {
+                Header: "Climate Requirements",
+                accessor: "",
+                Cell: ({ row }) => (
+                    <button
+                        onClick={() => {
+                            setClickedId(row.original?.plantid);
+                            setShowClimate(true);
+                        }}
+                        className="text-green-500 hover:text-green-700 transition duration-300"
+                    >
+                        <HiOutlineEye />
+                    </button>
+                )
+            },
+            {
+                Header: "Edit",
+                accessor: "",
+                Cell: ({ row }) => (
+                    <button
+                        onClick={() => {
+                            setUpdateData(row.original);
+                            setShow(true);
+                        }}
+                        className="text-green-500 hover:text-green-700 transition duration-300"
+                    >
+                        <HiOutlinePencilAlt />
+                    </button>
+                )
+            }
+        ],
+        []
+    );
 
-      {/* Pagination Controls */}
-      {fdata.length > pageSize && (
-        <div className="pagination flex justify-center mb-20 *:p-4">
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            {"Previous"}
-          </button>{" "}
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
-            {"Next"}
-          </button>{" "}
-          <span>
-            Page{" "}
-            <strong>
-              {pageIndex + 1} of {pageOptions.length}
-            </strong>{" "}
-          </span>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-            }}
-          >
-            {[5, 10, 20].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-        </div>
-      </div>
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        page,
+        prepareRow,
+        state: { pageIndex, pageSize },
+        gotoPage,
+        nextPage,
+        previousPage,
+        canNextPage,
+        canPreviousPage,
+        pageOptions,
+        pageCount,
+        setPageSize
+    } = useTable(
+        {
+            columns,
+            data: fdata,
+            initialState: { pageIndex: 0, pageSize: 5 } 
+        },
+        useSortBy,
+        usePagination
+    );
+
+    return (
         <div>
-            <Link to='/contribute' >
-                <h1 className='bg-blue-300 rounded-md'>
-                    Add Plants
-                </h1>
-            </Link>
-        </div>
+            {show ? <EditModal updatedata={updatedata} setShow={setShow} /> : ""}
+            {showtaxon && <TaxonView setShowtaxon={setShowtaxon} id={clickedid} />}
+            {showclimate && <ClimateRequirements setShowClimate={setShowClimate} id={clickedid} />}
+            {showclimateupdate && <EditClimate setShowClimateUpdate={setShowClimateUpdate} id={clickedid} />}
+            <div className="flex justify-between items-center m-4 p-4 bg-white rounded-lg shadow-md">
+    <div>
+        <img src={profile} className="w-52 rounded-full" alt="Profile" />
     </div>
-  )
-}
+    <div className="flex flex-col gap-2"  >
+        <h1 className="text-3xl font-bold">{userpresent?.username}</h1>
+        <p className="text-gray-600">{userpresent?.email}</p>
+        {admin && <p className="text-gray-600">{admin.email}</p>}
+    </div>
+</div>
 
-export default Profile
+            <div>
+                
+                <div>
+                    {fdata.length > 0 && (
+                        <div className="flex items-center justify-center">
+                            <div className="mx-auto w-full lg:w-[40rem] bg-white p-4 rounded-lg flex justify-center">
+                           
+                                <table {...getTableProps()} className="w-full table-auto text-center ">
+                                    <thead>
+                                        {headerGroups.map((headerGroup) => (
+                                            <tr
+                                                {...headerGroup.getHeaderGroupProps()}
+                                                className="bg-green-200 text-gray-700 text-xl font-semibold"
+                                            >
+                                                {headerGroup.headers.map((column) => (
+                                                    <th
+                                                        {...column.getHeaderProps(
+                                                            column.getSortByToggleProps()
+                                                        )}
+                                                        className="py-2 min-w-[150px]"
+                                                    >
+                                                        {column.render("Header")}
+                                                        <span>
+                                                            {column.isSorted ? (
+                                                                column.isSortedDesc ? (
+                                                                    <span className="ml-1">🔽</span>
+                                                                ) : (
+                                                                    <span className="ml-1">🔼</span>
+                                                                )
+                                                            ) : (
+                                                                ""
+                                                            )}
+                                                        </span>
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </thead>
+                                    <tbody {...getTableBodyProps()}>
+                                        {page.map((row) => {
+                                            prepareRow(row);
+                                            return (
+                                                <tr
+                                                    key={row.id}
+                                                    className="bg-white border-b border-gray-200"
+                                                    {...row.getRowProps()}
+                                                >
+                                                    {row.cells.map((cell) => (
+                                                        <td {...cell.getCellProps()} className="py-2">
+                                                            {cell.render("Cell")}
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                
+                    {fdata.length > pageSize && (
+                        <div className="pagination flex justify-center mb-20 *:p-4">
+                            <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+                                {"Previous"}
+                            </button>{" "}
+                            <button onClick={() => nextPage()} disabled={!canNextPage}>
+                                {"Next"}
+                            </button>{" "}
+                            <span>
+                                Page{" "}
+                                <strong>
+                                    {pageIndex + 1} of {pageOptions.length}
+                                </strong>{" "}
+                            </span>
+                            <select
+                                value={pageSize}
+                                onChange={(e) => {
+                                    setPageSize(Number(e.target.value));
+                                }}
+                            >
+                                {[5, 10, 20].map((pageSize) => (
+                                    <option key={pageSize} value={pageSize}>
+                                        Show {pageSize}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                </div>
+            </div>
+            <div className='flex justify-center'>
+            <Link to='/contribute'>
+    <h1 className='bg-green-300 rounded-md  text-lg px-4 py-2  '>
+        Add Plants
+    </h1>
+</Link>
+
+
+            </div>
+        </div>
+    );
+};
+
+export default Profile;

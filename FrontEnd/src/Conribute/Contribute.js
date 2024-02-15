@@ -3,156 +3,106 @@ import axios from 'axios';
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import run from "../Geminisearch";
-import loader from "../../images/icegif-1262.gif"
+import loader from "../../images/icegif-1262.gif";
+import background0 from "../../images/bg.jpg"; 
+import background from "../../images/profile.png"; 
 
 const Contribute = () => {
   const navigate = useNavigate();
-  const userpresent = useSelector(store=>store.user);
+  const userpresent = useSelector(store => store.user);
 
-  useEffect(()=>{
-    if(!userpresent){
+  useEffect(() => {
+    if (!userpresent) {
       navigate('/log');
     }
-  })
-  const [load,setLoad] = useState(false);
+  });
 
-  const [plantname, setplantname] = useState("");
-  const [age, setage] = useState("");
-  const [location, setlocation] = useState("");
-  const [commonname,setCommonName] = useState();
-  const [expectedlifetime,setExpectedLifeTime] = useState();
-  const [count,setCount] = useState();
-  const [msg, setmsg] = useState("");
+  const [load, setLoad] = useState(false);
+  const [plantname, setPlantName] = useState("");
+  const [age, setAge] = useState("");
+  const [location, setLocation] = useState("");
+  const [commonname, setCommonName] = useState("");
+  const [expectedlifetime, setExpectedLifeTime] = useState("");
+  const [count, setCount] = useState("");
+  const [msg, setMsg] = useState("");
 
   const senddata = async () => {
-    if (plantname &&  age && location && commonname && expectedlifetime && count) {
-      console.log("entered");
-    try {
-      const response = await axios.post("http://localhost:3000/details", {
-        plantname:plantname,
-        commonname:commonname,
-        age:age,
-        count:count,
-        location:location,
-        expectedlifetime:expectedlifetime,
-        userid:userpresent.userid
-      }).then(async(response)=>{
-        console.log("response",response);
-        if(response?.data?.error){
-          alert(response?.data?.error);
+    if (plantname && age && location && commonname && expectedlifetime && count) {
+      try {
+        setLoad(true);
+        const response = await axios.post("http://localhost:3000/details", {
+          plantname,
+          commonname,
+          age,
+          count,
+          location,
+          expectedlifetime,
+          userid: userpresent.userid
+        });
+        if (response.data.error) {
+          alert(response.data.error);
           setLoad(false);
-          return ;
+          return;
         }
         let taxon = await run(`Provide the information of ${plantname}. The response should be in the form of a JSON object with the following keys: 'Kingdom', 'Family', 'Phylum', and 'Class'. Ensure there are no additional words or characters in the response.`);
-        console.log(taxon);
-        taxon = taxon.replace('```','');
-        taxon = taxon.replace('```','');
-        taxon = taxon.replace('json','')
+        let image = await run(`Provide image of ${plantname}, no texts needed just image`);
+        taxon = taxon.replace('```', '').replace('```', '').replace('json', '');
         const jsonData = JSON.parse(taxon);
-        console.log(jsonData);
-        const taxonres = await axios.post("http://localhost:3000/taxon",{jsonData,id:response.data})
-        if(taxonres){
+        const taxonres = await axios.post("http://localhost:3000/taxon", { jsonData, id: response.data });
+        if (taxonres) {
           setLoad(false);
           navigate('/account');
         }
-      })
-    } catch (error) {
-      console.error("Error:", error.message);
-      setmsg("An error occurred while submitting the form. Please try again.");
+      } catch (error) {
+        console.error("Error:", error.message);
+        setMsg("An error occurred while submitting the form. Please try again.");
+        setLoad(false);
+      }
+    } else {
+      alert("Please fill in all fields");
     }
-    }
-    else{
-      alert("fill all");
-    }
-  }
+  };
 
   return (
     <>
-    {load &&  <div className="fixed h-full w-full">
-      <div className="bg-white h-full flex justify-center">
-        <img className="w-52 h-20" src={loader} />
+      {load && (
+        <div className="fixed inset-0 bg-white bg-opacity-75 flex justify-center items-center">
+          <img className="w-52 h-20" src={loader} alt="Loading..." />
+        </div>
+      )}
+      <div className="h-screen flex justify-center items-center bg-cover rounded-lg " style={{backgroundImage: `url(${background0})`}}>
+        <div className="h-[40rem]  w-1/4 rounded-3xl  bg-green-100 opacity-[0.9] shadow-lg p-8">
+          <form className="flex flex-col gap-4">
+            <label htmlFor="plant_name" className="text-lg">Plant Name:</label>
+            <input type="text" id="plant_name" name="plant_name" className="border border-black p-2 rounded-md" required onChange={(e) => setPlantName(e.target.value)} value={plantname} />
+
+            <label htmlFor="age" className="text-lg">Age:</label>
+            <input type="number" id="age" name="age" className="border border-black p-2 rounded-md" required onChange={(e) => setAge(e.target.value)} value={age} />
+
+            <label htmlFor="count" className="text-lg">Count:</label>
+            <input type="number" id="count" name="count" className="border border-black p-2 rounded-md" required onChange={(e) => setCount(e.target.value)} value={count} />
+
+            <label htmlFor="common_name" className="text-lg">Common Name:</label>
+            <input type="text" id="common_name" name="common_name" className="border border-black p-2 rounded-md" required onChange={(e) => setCommonName(e.target.value)} value={commonname} />
+
+            <label htmlFor="expected_lifetime" className="text-lg">Expected Lifetime:</label>
+            <input type="number" id="expected_lifetime" name="expected_lifetime" className="border border-black p-2 rounded-md" required onChange={(e) => setExpectedLifeTime(e.target.value)} value={expectedlifetime} />
+
+            <label htmlFor="plant_location" className="text-lg">Plant Location Area:</label>
+            <select id="plant_location" name="plant_location" className="border border-black p-2 rounded-md" required onChange={(e) => setLocation(e.target.value)} value={location}>
+              <option value="">Select Location</option>
+              <option value="Ashokapuram">Ashokapuram</option>
+              <option value="Vidyaranyapuram">Vidyaranyapuram</option>
+              <option value="Kuvempu Nagar">Kuvempu Nagar</option>
+            </select>
+            <div className="flex justify-center">
+              <button onClick={(e) => { e.preventDefault(); senddata(); }} className="bg-green-500 h-[40px] w-[150px] rounded-xl hover:bg-green-600 transition duration-300 text-white font-bold">Submit Details</button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>}
-    <div className="h-[90vh] flex justify-center items-center">
-      <div className="h-[40rem] bg-gradient-to-r from-green-100 to-green-200 rounded-3xl">
-        <form className="flex flex-col p-4 m-10 *:m-2">
-          <label>Plant Name:</label>
-          <input
-            className="border border-black p-1"
-            type="text"
-            id="plant_name"
-            name="plant_name"
-            required
-            onChange={(e) => setplantname(e.target.value)}
-            value={plantname}
-          />
-      
-          <label>Age:</label>
-          <input
-            type="number"
-            name="age"
-            required
-            className="border border-black p-1"
-            onChange={(e) => setage(e.target.value)}
-          />
-
-          <label>Count:</label>
-          <input
-            type="number"
-            name="commonname"
-            required
-            className="border border-black p-1"
-            onChange={(e) => setCount(e.target.value)}
-          />
-
-          <label>Common Name:</label>
-          <input
-            type="text"
-            name="commonname"
-            required
-            className="border border-black p-1"
-            onChange={(e) => setCommonName(e.target.value)}
-          />
-
-          <label>Expected Lifetime:</label>
-          <input
-            type="number"
-            name="expectedlife"
-            required
-            className="border border-black p-1"
-            onChange={(e) => setExpectedLifeTime(e.target.value)}
-          />
-
-          <label htmlFor="plant_location">Plant Location Area:</label>
-          <select
-            id="plant_location"
-            name="plant_location"
-            className="border border-black p-1"
-            onChange={(e) => setlocation(e.target.value)}
-            required
-          >
-            <option value="">Select Location</option>
-            <option value="Ashokapuram">Ashokapuram</option>
-            <option value="Vidyaranyapuram">Vidyaranyapuram</option>
-            <option value="Kuvempu Nagar">Kuvempu Nagar</option>
-          </select>
-          <div className="flex justify-center">
-            <button
-              onClick={(e)=>{
-                e.preventDefault();
-                senddata();
-                setLoad(true);
-              }}
-              className="bg-green-500 h-[40px] w-[150px] rounded-xl"
-            >
-              Submit Details
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
     </>
   );
 };
 
-export default Contribute; 
+export default Contribute;

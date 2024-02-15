@@ -1,5 +1,5 @@
 import React from 'react'
-import profile from "../../images/profile.png"
+import profile from "../../images/1.jpg"
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom'
