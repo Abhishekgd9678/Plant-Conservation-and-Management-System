@@ -270,7 +270,7 @@ app.post('/adminprofile',(req,res)=>{
 })
 
 app.get('/adminmessage',(req,res)=>{
-  const q = `select message,last_updated_userid,last_updated_plantid from admin where adminid=1`
+  const q = `select message,last_updated_userid,last_updated_plantid, prevcount from admin where adminid=1`
   db.query(q,(err,data)=>{
     if(err){
       console.log(err);
@@ -398,22 +398,32 @@ app.post('/updateclimate', (req, res) => {
   });
 });
 
-app.post('/getuserplantdata',(req,res)=>{
-  const {plantid,userid} = req.body ;
+app.post('/getplantdata',(req,res)=>{
+  const {plantid} = req.body ;
   console.log(req.body);
-  db.query('CALL GetPlantInfoAndUserData(?, ?)', [userid,plantid], (err, results) => {
+  db.query('select * from plantinfo where plantid = ?', [plantid], (err, results) => {
     if (err) {
       console.error('Error calling stored procedure:', err);
       res.status(500).json({ error: 'Internal server error' });
     } else {
       // Retrieve the result sets from the stored procedure
-      const plantInfo = results[0];
-      const userData = results[1];
       console.log(results);
       // Send the retrieved data as a JSON response
-      res.json({ plantInfo, userData });
+      res.json( results );
     }
   });
+})
+
+app.post('/getuserdata',(req,res)=>{
+  const userid = req.body.userid;
+  db.query('select * from userdata where userid = ?',[userid],(err,results)=>{
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.json(results);
+    }
+  })
 })
 
 app.post('/addplantcount',(req,res)=>{

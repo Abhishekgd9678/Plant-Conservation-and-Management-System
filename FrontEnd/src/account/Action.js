@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 const Action = () => {
     
-    const [data,setData] = useState();
+    const [udata,setUdata] = useState();
+    const [pdata,setPdata] = useState();
     const [addcount,setAddCount] = useState()
-
+    const [prevcount,setPrevcount] = useState();
     const [plantid,setPlantid] = useState();
     const [userid,setUserid] = useState();
 
@@ -38,18 +39,24 @@ const Action = () => {
     const getMessage =async ()=>{
         const res= await axios.get("http://localhost:3000/adminmessage");
         console.log(res.data);
+        setPrevcount(res?.data[0]?.prevcount);
         getdata(res?.data[0]?.last_updated_plantid,res?.data[0]?.last_updated_userid);
         setPlantid(res?.data[0]?.last_updated_plantid);
         setUserid(res?.data[0]?.last_updated_userid);
     }
 
     const getdata =async (x,y)=>{
-        const response = await axios.post("http://localhost:3000/getuserplantdata",{
-            userid:y,
+        const response1 = await axios.post("http://localhost:3000/getplantdata",{
             plantid:x
         });
-        console.log(response);
-        setData(response?.data?.plantInfo[0]);
+        console.log(response1?.data[0]);
+        setPdata(response1?.data[0]);
+        const response2 = await axios.post("http://localhost:3000/getuserdata",{
+            userid:y
+        });
+        console.log(response2?.data[0]);
+        setUdata(response2?.data[0]);
+        console.log(response2);
     }
 
   return (
@@ -61,8 +68,9 @@ const Action = () => {
             </div>
             <div>
                 <ul>
-                    <li>Name: {data?.plantinfo_scientificname}</li>
-                    <li>Present Count: {data?.plantinfo_count}</li>
+                    <li>Name: {pdata?.scientificname}</li>
+                    <li>Present Count: {pdata?.count}</li>
+                    <li>Previous Count: {prevcount}</li>
                     {/* <li>Previous Count: {data}</li> */}
                 </ul>
             </div>
@@ -73,11 +81,14 @@ const Action = () => {
             </div>
             <div>
                 <ul>
-                    <li>User Id: {data?.userdata_userid}</li>
-                    <li>User Name: {data?.userdata_username}</li>
+                    <li>User Id: {udata?.userid}</li>
+                    <li>User Name: {udata?.username}</li>
                 </ul>
             </div>
         </div>
+        </div>
+        <div className='p-4 mx-10 text-xl text-red-300'>
+            So totally there is a reduction of {prevcount-pdata?.count} plants.
         </div>
         <div className='flex m-10 flex-col gap-4'>
             <div className='text-xl font-semibold'>

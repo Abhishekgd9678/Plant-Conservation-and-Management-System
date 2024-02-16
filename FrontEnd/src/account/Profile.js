@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTable, useSortBy, usePagination } from 'react-table';
 import { HiOutlineEye, HiOutlinePencilAlt } from 'react-icons/hi'; 
-import profile from "../../images/1.jpg";
+import profile from "../../images/profile.jpg";
 import EditModal from '../edit/EditModal';
 import ClimateRequirements from '../views/ClimateRequirements';
 import TaxonView from '../views/TaxonView';
@@ -129,7 +129,7 @@ const Profile = () => {
             {showclimateupdate && <EditClimate setShowClimateUpdate={setShowClimateUpdate} id={clickedid} />}
             <div className="flex justify-between items-center m-4 p-4 bg-white rounded-lg shadow-md">
     <div>
-        <img src={profile} className="w-52 rounded-full" alt="Profile" />
+        <img src={profile} className="w-52 rounded-full bg-#fff" alt="Profile" />
     </div>
     <div className="flex flex-col gap-2"  >
         <h1 className="text-3xl font-bold">{userpresent?.username}</h1>

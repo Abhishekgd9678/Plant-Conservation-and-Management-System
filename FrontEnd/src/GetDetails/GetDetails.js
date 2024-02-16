@@ -180,7 +180,7 @@ const GetDetails = () => {
 
       {fdata.length > 0 && (
         <div className="flex items-center justify-center">
-          <div className="mx-auto w-full lg:w-[40rem] bg-white p-4 rounded-lg flex justify-center shadow-lg">
+          <div className="mx-auto w-full lg:w-[40rem] p-5 flex justify-center shadow-lg">
             {/* React-table */}
             <table
               {...getTableProps()}
