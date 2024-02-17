@@ -21,6 +21,7 @@ const Profile = () => {
     const [showclimateupdate, setShowClimateUpdate] = useState(false);
     const [updatedata, setUpdateData] = useState();
     const [fdata, setFdata] = useState([]);
+    const [udata,setUdata] = useState();
 
     useEffect(() => {
         if (!userpresent && !admin) {
@@ -34,6 +35,12 @@ const Profile = () => {
 
     const getData = async () => {
         const res = await axios.post("http://localhost:3000/userplants", { id: userpresent.userid });
+        const response = await axios.post("http://localhost:3000/getuserdata",{
+            userid: userpresent.userid
+        });
+        console.log(response?.data[0]);
+        console.log(res.data);
+        setUdata(response?.data[0]);
         setFdata(res.data);
     };
 
@@ -65,6 +72,7 @@ const Profile = () => {
                 Header: "Climate Requirements",
                 accessor: "",
                 Cell: ({ row }) => (
+                    <div className='flex gap-4 justify-center'>
                     <button
                         onClick={() => {
                             setClickedId(row.original?.plantid);
@@ -74,6 +82,16 @@ const Profile = () => {
                     >
                         <HiOutlineEye />
                     </button>
+                    <button
+                        onClick={() => {
+                            setClickedId(row.original?.plantid);
+                            setShowClimateUpdate(true);
+                        }}
+                        className="text-green-500 hover:text-green-700 transition duration-300"
+                    >
+                        < HiOutlinePencilAlt/>
+                    </button>
+                    </div>
                 )
             },
             {
@@ -131,11 +149,24 @@ const Profile = () => {
     <div>
         <img src={profile} className="w-52 rounded-full bg-#fff" alt="Profile" />
     </div>
-    <div className="flex flex-col gap-2"  >
-        <h1 className="text-3xl font-bold">{userpresent?.username}</h1>
-        <p className="text-gray-600">{userpresent?.email}</p>
-        {admin && <p className="text-gray-600">{admin.email}</p>}
+    <div className="flex flex-col gap-2">
+    <h1 className="text-3xl font-bold">{userpresent?.username}</h1>
+    <p className="text-gray-600">{userpresent?.email}</p>
+    {admin && <p className="text-gray-600">{admin.email}</p>}
+    {udata?.message ? <div className='flex flex-col text-red-600'>
+    (
+        <>
+            <p className="">Need to plant: {udata?.needtoplant} plants</p>
+            {fdata.filter(x => x?.plantid === udata?.plantid).map(item => (
+                <div key={item.plantid}>
+                    Name: {item?.scientificname}
+                </div>
+            ))}
+        </>
+        )
+    </div>:""}
     </div>
+
 </div>
 
             <div>
